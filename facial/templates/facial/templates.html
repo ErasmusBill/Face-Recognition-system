@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Compare Images{% endblock %}</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'compare_images' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="head">
+            <h1>Compare Images</h1>
+        </div>
+        {{ form.as_p }} 
+        {% if success %}
+            <div class="success">
+                <p>Images compared successfully!</p>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="error">
+                <ul>
+                    {% for e in error %}
+                        <li>{{ e }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+    </form>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Verify Your Email{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .head {
+            text-align: center;
+            margin-top: 50px;
+            color: #333;
+        }
+        .verify-email-form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 55px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .error ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .error li {
+            margin-bottom: 5px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .form-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        .form-group label {
+            display: inline;
+        }
+        .info-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .helptext {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .errorlist {
+            color: red;
+            list-style-type: none;
+            padding: 0;
+            margin: 5px 0;
+        }
+        .errorlist li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="head">Verify Your Email</h1>
+    <div class="verify-email-form">
+        <p class="info-text">Please enter the verification code sent to your email address to complete your registration.</p>
+        <form method="post" action="{% url 'verify_email' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="verification_code">Verification Code:</label>
+                <input type="text" id="verification_code" name="verification_code" required>
+                {% if form.verification_code.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.verification_code.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if form.verification_code.help_text %}
+                    <div class="helptext">{{ form.verification_code.help_text }}</div>
+                {% endif %}
+            </div>
+
+            {% if form.errors %}
+                <div class="error">
+                    <p>Please correct the errors below:</p>
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <button type="submit" class="btn">Verify Email</button>
+            </div>
+        </form>
+        <p style="text-align: center;">Didn't receive the code? <a href="#">Resend verification email</a></p>
+        <p style="text-align: center;">Back to <a href="{% url 'login' %}">Login</a></p>
+    </div>
+</body>
+</html>

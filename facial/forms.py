@@ -1,0 +1,49 @@
+from django import forms
+from django.contrib.auth.hashers import make_password
+from .models import User,FacialRecognition
+
+class SignUpForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(), label="Password")
+    password_confirm = forms.CharField(widget=forms.PasswordInput(), label="Confirm Password")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already registered.")
+
+        if not email or not email.endswith('@example.com'):
+            raise forms.ValidationError("Email must be from the domain 'example.com'.")
+
+        return email
+
+    def clean_password_confirm(self):
+        password = self.cleaned_data.get('password')
+        password_confirm = self.cleaned_data.get('password_confirm')
+
+        if password != password_confirm:
+            raise forms.ValidationError("Passwords do not match.")
+        return password_confirm
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.password = make_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
+    
+    
+class ImageUploadForm(forms.ModelForm):
+         
+    class Meta:
+        model = FacialRecognition
+        fields = ['image_1','image_2']
+        
+        
