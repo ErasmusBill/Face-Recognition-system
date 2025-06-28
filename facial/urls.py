@@ -12,4 +12,5 @@ urlpatterns = [
     path('recognition/<int:pk>/', views.facial_recognition_detail, name='facial_recognition_detail'),
     path('resend-verification/<str:email>/', views.resend_verification_view, name='resend_verification'),
     path('resend-verification/', views.resend_verification_view, name='resend_verification_no_email'),
+    path('recognition/<int:pk>/delete/', views.delete_recognition, name='delete-recognition'),
 ]

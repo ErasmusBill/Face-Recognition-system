@@ -337,3 +337,17 @@ def home(request):
         'total_recognitions': FacialRecognition.objects.filter(user=request.user).count()
     }
     return render(request, 'facial/home.html', context)
+
+
+def delete_recognition(request,pk):
+    """
+    View to delete a specific facial recognition record
+    """
+    try:
+        recognition = FacialRecognition.objects.get(pk=pk, user=request.user)
+        recognition.delete()
+        messages.success(request, 'Facial recognition record deleted successfully.')
+    except FacialRecognition.DoesNotExist:
+        messages.error(request, 'Facial recognition record not found.')
+    
+    return redirect('facial_recognition_history')

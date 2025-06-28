@@ -83,6 +83,10 @@
                                 <a href="{% url 'facial_recognition_detail' recognition.pk %}" class="text-blue-400 hover:text-blue-300 transition-colors">
                                     View Details →
                                 </a>
+                                <br>
+                                <a href="{% url 'delete-recognition' recognition.pk %}" class="text-blue-400 hover:text-blue-300 transition-colors">
+                                    Delete→
+                                </a>
                             </div>
                         </div>
                         {% endfor %}
