@@ -141,18 +141,13 @@ def upload_images(request):
     """
     View to handle facial recognition image uploads and comparison
     """
-    print(f"Request method: {request.method}")
-    print(f"Request POST data: {request.POST}")
-    print(f"Request FILES: {request.FILES}")
+  
     
     if request.method == "POST":
         form = ImageUploadForm(request.POST, request.FILES)
         print(f"Form is valid: {form.is_valid()}")
         
-        if form.is_valid():
-            print("Form is valid, processing...")
-            
-            
+        if form.is_valid():            
             facial_recognition = form.save(commit=False)
             facial_recognition.user = request.user
             facial_recognition.comparison_result = 'pending'
@@ -165,17 +160,15 @@ def upload_images(request):
             try:
                 # Save the object with images and user
                 facial_recognition.save()
-                print(f"Created object with ID: {facial_recognition.pk}")
-                
-                print("Starting facial comparison...")
+
                 comparison_result = compare_faces_from_db(facial_recognition)
-                print(f"Comparison result: {comparison_result}")
+
                 
                 # Update the comparison results
                 facial_recognition.comparison_result = comparison_result['status']
                 facial_recognition.result_details = comparison_result['details']
                 facial_recognition.save()
-                print("Saved comparison result to database")
+
                 
                 # Add appropriate messages
                 if comparison_result['status'] == 'same':
@@ -187,16 +180,16 @@ def upload_images(request):
                 else:
                     messages.error(request, f'❌ Error occurred: {comparison_result["details"]}')
                 
-                print(f"Redirecting to detail page for ID: {facial_recognition.pk}")
+
                 return redirect('facial_recognition_detail', pk=facial_recognition.pk)
                 
             except Exception as e:
-                print(f"Exception occurred: {str(e)}")
+            
                 logger.error(f"Error processing facial recognition for user {request.user.username}: {str(e)}")
                 messages.error(request, 'An error occurred while processing your images. Please try again.')
                 return render(request, 'facial/upload_images.html', {'form': form})
         else:
-            print(f"Form errors: {form.errors}")
+        
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ImageUploadForm()
