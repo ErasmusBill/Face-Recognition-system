@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Facial Recognition System</title>
+    <!-- Add Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Your custom CSS -->
+    <link href="{% static 'css/index.css' %}" rel="stylesheet" />
+</head>
+<body>
+
+<!-- RECOGNITION HISTORY TEMPLATE -->
+<div id="history-template" class="template-section">
+    <div class="min-h-screen py-8">
+        <div class="container mx-auto px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">Recognition History</h1>
+                    <p class="text-white/80">View all your facial recognition comparisons</p>
+                </div>
+                <div class="flex gap-4 mt-4 md:mt-0">
+                    <a href="{% url 'upload_images' %}" class="btn-primary text-white px-6 py-3 rounded-lg font-medium hover:scale-105 transition-transform">
+                        🔍 New Recognition
+                    </a>
+                    <a href="{% url 'home' %}" class="bg-white/20 text-white px-6 py-3 rounded-lg font-medium hover:bg-white/30 transition-colors">
+                        🏠 Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recognition Cards -->
+            {% if recognitions %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for recognition in recognitions %}
+                    <div class="glass-card rounded-2xl p-6 hover:scale-105 transition-transform fade-in">
+                        <!-- Status Badge -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="status-badge px-3 py-1 rounded-full text-sm font-medium
+                                {% if recognition.comparison_result == 'same' %}bg-green-500/20 text-green-400
+                                {% elif recognition.comparison_result == 'different' %}bg-red-500/20 text-red-400
+                                {% elif recognition.comparison_result == 'no_face' %}bg-yellow-500/20 text-yellow-400
+                                {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                                {{ recognition.get_result_display }}
+                            </div>
+                            <div class="text-white/60 text-sm">
+                                {{ recognition.created_at|date:"M d" }}
+                            </div>
+                        </div>
+
+                        <!-- Images Preview -->
+                        <div class="flex space-x-2 mb-4">
+                            <div class="flex-1">
+                                <img src="{{ recognition.image_1.url }}" alt="Image 1" class="w-full h-32 object-cover rounded-lg">
+                            </div>
+                            <div class="flex items-center">
+                                <div class="text-white/60 text-2xl">vs</div>
+                            </div>
+                            <div class="flex-1">
+                                <img src="{{ recognition.image_2.url }}" alt="Image 2" class="w-full h-32 object-cover rounded-lg">
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="space-y-2 mb-4">
+                            <div class="text-white/80 text-sm">
+                                <strong>Date:</strong> {{ recognition.created_at|date:"M d, Y - H:i" }}
+                            </div>
+                            {% if recognition.result_details %}
+                            <div class="text-white/80 text-sm">
+                                <strong>Details:</strong> {{ recognition.result_details|truncatechars:50 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Button -->
+                        <a href="{% url 'facial_recognition_detail' recognition.pk %}" 
+                           class="block w-full text-center bg-white/10 text-white py-2 rounded-lg hover:bg-white/20 transition-colors">
+                            View Details
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="glass-card rounded-2xl p-12 text-center">
+                    <div class="text-8xl mb-6">📊</div>
+                    <h2 class="text-2xl font-bold text-white mb-4">No Recognition History</h2>
+                    <p class="text-white/80 mb-8">You haven't performed any facial recognition comparisons yet.</p>
+                    <a href="{% url 'upload_images' %}" class="btn-primary text-white px-8 py-4 rounded-lg font-medium text-lg inline-block hover:scale-105 transition-transform">
+                        Start Your First Recognition
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/index.js' %}"></script>
+
+</body>
+</html>

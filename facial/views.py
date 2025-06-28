@@ -112,7 +112,7 @@ def login_view(request):
         if user is not None:
             if hasattr(user, 'is_verified') and not user.is_verified: # type: ignore
                 messages.error(request, "please verify your email before logging")
-                return redirect('verify_email_page')
+                return redirect('verify-email')
             
             login(request, user)
             messages.success(request, f'Welcome {user.username}!')
@@ -136,39 +136,48 @@ def current_user(request):
     else:
         return HttpResponse("No user is currently logged in.")
 
-@login_required   
+@login_required    
 def upload_images(request):
     """
     View to handle facial recognition image uploads and comparison
     """
+    print(f"Request method: {request.method}")
+    print(f"Request POST data: {request.POST}")
+    print(f"Request FILES: {request.FILES}")
+    
     if request.method == "POST":
         form = ImageUploadForm(request.POST, request.FILES)
+        print(f"Form is valid: {form.is_valid()}")
+        
         if form.is_valid():
-            image1 = form.cleaned_data.get('image1')
-            image2 = form.cleaned_data.get('image2')
+            print("Form is valid, processing...")
             
-            if not image1 or not image2:
+            
+            facial_recognition = form.save(commit=False)
+            facial_recognition.user = request.user
+            facial_recognition.comparison_result = 'pending'
+            
+            # Check if both images are present
+            if not facial_recognition.image_1 or not facial_recognition.image_2:
                 messages.error(request, 'Both images are required.')
                 return render(request, 'facial/upload_images.html', {'form': form})
             
             try:
-                # Create FacialRecognition instance
-                facial_recognition = FacialRecognition.objects.create(
-                    user=request.user,
-                    image_1=image1,
-                    image_2=image2,
-                    comparison_result='pending'
-                )
+                # Save the object with images and user
+                facial_recognition.save()
+                print(f"Created object with ID: {facial_recognition.pk}")
                 
-                # Perform facial comparison
+                print("Starting facial comparison...")
                 comparison_result = compare_faces_from_db(facial_recognition)
+                print(f"Comparison result: {comparison_result}")
                 
-                # Update the result
+                # Update the comparison results
                 facial_recognition.comparison_result = comparison_result['status']
                 facial_recognition.result_details = comparison_result['details']
                 facial_recognition.save()
+                print("Saved comparison result to database")
                 
-                # Add appropriate message
+                # Add appropriate messages
                 if comparison_result['status'] == 'same':
                     messages.success(request, '✓ Images contain the same person!')
                 elif comparison_result['status'] == 'different':
@@ -178,13 +187,16 @@ def upload_images(request):
                 else:
                     messages.error(request, f'❌ Error occurred: {comparison_result["details"]}')
                 
+                print(f"Redirecting to detail page for ID: {facial_recognition.pk}")
                 return redirect('facial_recognition_detail', pk=facial_recognition.pk)
                 
             except Exception as e:
+                print(f"Exception occurred: {str(e)}")
                 logger.error(f"Error processing facial recognition for user {request.user.username}: {str(e)}")
                 messages.error(request, 'An error occurred while processing your images. Please try again.')
                 return render(request, 'facial/upload_images.html', {'form': form})
         else:
+            print(f"Form errors: {form.errors}")
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ImageUploadForm()
@@ -226,15 +238,26 @@ def compare_faces_from_db(facial_recognition_instance):
         image1_path = facial_recognition_instance.image_1.path
         image2_path = facial_recognition_instance.image_2.path
         
-        # Load images using face_recognition
+        print(f"Image 1 path: {image1_path}")
+        print(f"Image 2 path: {image2_path}")
+        print(f"Image 1 exists: {os.path.exists(image1_path)}")
+        print(f"Image 2 exists: {os.path.exists(image2_path)}")
+        
+        if not os.path.exists(image1_path) or not os.path.exists(image2_path):
+            return {
+                'status': 'error',
+                'details': 'Image files not found on disk'
+            }
+            
+        
         img1 = face_recognition.load_image_file(image1_path)   
         img2 = face_recognition.load_image_file(image2_path)
 
-        # Get face encodings
+        
         enc1 = face_recognition.face_encodings(img1)
         enc2 = face_recognition.face_encodings(img2)
         
-        # Check if faces were detected
+        
         if not enc1 and not enc2:
             return {
                 'status': 'no_face',
@@ -251,10 +274,10 @@ def compare_faces_from_db(facial_recognition_instance):
                 'details': 'No face detected in the second image'
             }
         
-        # Compare faces
+        
         result = face_recognition.compare_faces([enc1[0]], enc2[0], tolerance=0.6)
         
-        # Calculate face distance for additional details
+        
         face_distance = face_recognition.face_distance([enc1[0]], enc2[0])[0]
         confidence_percentage = max(0, (1 - face_distance) * 100)
         

@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     """
     Custom user model that extends the default Django user model.
-    This model can be used to add additional fields or methods in the future.
     """
     verification_code = models.CharField(max_length=255, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
@@ -20,7 +19,6 @@ class User(AbstractUser):
 class FacialRecognition(models.Model):
     """
     Model to store facial recognition data.
-    This model can be extended to include more fields related to facial recognition.
     """
     COMPARISON_CHOICES = [
         ('same', 'Same Person'),

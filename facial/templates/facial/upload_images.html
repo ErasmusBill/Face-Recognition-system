@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Images - Facial Recognition System</title>
+    <!-- Add Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Your custom CSS -->
+    <link href="{% static 'css/index.css' %}" rel="stylesheet" />
+</head>
+<body>
+
+<div class="min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">Facial Recognition Upload</h1>
+            <p class="text-white/80 text-lg">Upload two images to compare faces using advanced AI technology</p>
+        </div>
+
+        <!-- Display Messages -->
+        {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="bg-red-500/20 border border-red-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'success' %}
+                        <div class="bg-green-500/20 border border-green-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'warning' %}
+                        <div class="bg-yellow-500/20 border border-yellow-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'info' %}
+                        <div class="bg-blue-500/20 border border-blue-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                            {{ message }}
+                        </div>
+                    {% else %}
+                        <div class="bg-gray-500/20 border border-gray-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Upload Form -->
+        <div class="glass-card rounded-2xl p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Form Errors Display -->
+                {% if form.errors %}
+                    <div class="bg-red-500/20 border border-red-500/50 text-white px-4 py-3 rounded-lg mb-4">
+                        <h4 class="font-medium mb-2">Please correct the following errors:</h4>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p class="text-sm">• {{ field }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Image Upload Areas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Image 1 -->
+                    <div class="space-y-4">
+                        <label for="id_image_1" class="block text-white font-medium text-lg">First Image</label>
+                        <div class="upload-area rounded-xl p-8 text-center border-2 border-dashed border-white/30 hover:border-white/50 transition-colors relative">
+                            {{ form.image_1 }}
+                            <div class="pointer-events-none">
+                                <div class="text-6xl mb-4">📷</div>
+                                <p class="text-white font-medium mb-2">Click to upload first image</p>
+                                <p class="text-white/60 text-sm">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                        {% if form.image_1.errors %}
+                            <div class="text-red-400 text-sm">
+                                {% for error in form.image_1.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div id="preview1" class="hidden">
+                            <img id="img1" class="image-preview mx-auto rounded-lg max-w-full h-auto max-h-64" alt="Preview 1">
+                        </div>
+                    </div>
+
+                    <!-- Image 2 -->
+                    <div class="space-y-4">
+                        <label for="id_image_2" class="block text-white font-medium text-lg">Second Image</label>
+                        <div class="upload-area rounded-xl p-8 text-center border-2 border-dashed border-white/30 hover:border-white/50 transition-colors relative">
+                            {{ form.image_2 }}
+                            <div class="pointer-events-none">
+                                <div class="text-6xl mb-4">📷</div>
+                                <p class="text-white font-medium mb-2">Click to upload second image</p>
+                                <p class="text-white/60 text-sm">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                        {% if form.image_2.errors %}
+                            <div class="text-red-400 text-sm">
+                                {% for error in form.image_2.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div id="preview2" class="hidden">
+                            <img id="img2" class="image-preview mx-auto rounded-lg max-w-full h-auto max-h-64" alt="Preview 2">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="bg-blue-500/20 rounded-lg p-6">
+                    <h3 class="text-white font-medium mb-3">💡 Tips for best results:</h3>
+                    <ul class="text-white/80 space-y-2 text-sm">
+                        <li>• Use clear, well-lit photos with visible faces</li>
+                        <li>• Avoid blurry or heavily filtered images</li>
+                        <li>• Front-facing photos work best</li>
+                        <li>• Ensure faces are not obscured by glasses, masks, or shadows</li>
+                    </ul>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-center space-x-4">
+                    <button type="submit" class="btn-primary text-white px-8 py-4 rounded-lg font-medium text-lg hover:scale-105 transition-transform bg-blue-600 hover:bg-blue-700">
+                        🔍 Compare Faces
+                    </button>
+                    <a href="{% url 'home' %}" class="bg-gray-500/50 text-white px-8 py-4 rounded-lg font-medium text-lg hover:bg-gray-500/70 transition-colors">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript for image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle file input changes for both images
+    function setupImagePreview(inputId, previewId, imgId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const img = document.getElementById(imgId);
+        
+        if (input) {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.classList.add('hidden');
+                }
+            });
+        }
+    }
+    
+    // Setup preview for both image inputs
+    setupImagePreview('id_image_1', 'preview1', 'img1');
+    setupImagePreview('id_image_2', 'preview2', 'img2');
+});
+</script>
+
+<script src="{% static 'js/index.js' %}"></script>
+
+</body>
+</html>

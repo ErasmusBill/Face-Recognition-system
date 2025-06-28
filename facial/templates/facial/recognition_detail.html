@@ -1,0 +1,451 @@
+{% load static %}
+{% block title %}DETAIL{% endblock %}
+
+<!-- Modern Glass Morphism Styles -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-tertiary {
+    background: rgba(107, 114, 128, 0.5);
+    transition: all 0.3s ease;
+}
+
+.btn-tertiary:hover {
+    background: rgba(107, 114, 128, 0.7);
+    transform: translateY(-1px);
+}
+
+.status-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.image-preview {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.image-preview:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.back-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-link:hover {
+    color: white;
+    transform: translateX(-4px);
+}
+
+.result-icon {
+    transition: all 0.3s ease;
+}
+
+.result-icon:hover {
+    transform: scale(1.1);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .detail-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .image-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.image-label {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.comparison-result {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.result-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.result-same {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.result-different {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.result-no-face {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.result-error {
+    background: rgba(107, 114, 128, 0.2);
+    color: #9ca3af;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+}
+
+.detail-value {
+    color: white;
+    font-weight: 500;
+}
+
+.technical-details {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.action-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.action-button:last-child {
+    margin-bottom: 0;
+}
+</style>
+
+<!-- RECOGNITION DETAIL TEMPLATE -->
+<div id="detail-template" class="template-section">
+    <div style="min-height: 100vh; padding: 2rem 0;">
+        <div class="container">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; margin-bottom: 2rem;" class="fade-in">
+                <a href="{% url 'facial_recognition_history' %}" class="back-link">
+                    ← Back to History
+                </a>
+                <h1 style="font-size: 2.5rem; font-weight: 700; color: white; margin: 0 0 0 1rem;">Recognition Details</h1>
+            </div>
+
+            <!-- Main Content -->
+            <div class="detail-grid">
+                <!-- Images Section -->
+                <div class="fade-in">
+                    <div class="glass-card" style="border-radius: 16px; padding: 2rem;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0 0 1.5rem 0;">Image Comparison</h2>
+                        
+                        <div class="image-grid">
+                            <!-- Image 1 -->
+                            <div>
+                                <h3 style="font-size: 1.125rem; font-weight: 500; color: white; margin: 0 0 1rem 0;">First Image</h3>
+                                <div class="image-container">
+                                    <img src="{{ recognition.image_1.url }}" alt="First Image" 
+                                         class="image-preview"
+                                         style="width: 100%; height: 320px; object-fit: cover;">
+                                    <div class="image-label">Image 1</div>
+                                </div>
+                            </div>
+
+                            <!-- Image 2 -->
+                            <div>
+                                <h3 style="font-size: 1.125rem; font-weight: 500; color: white; margin: 0 0 1rem 0;">Second Image</h3>
+                                <div class="image-container">
+                                    <img src="{{ recognition.image_2.url }}" alt="Second Image" 
+                                         class="image-preview"
+                                         style="width: 100%; height: 320px; object-fit: cover;">
+                                    <div class="image-label">Image 2</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Result -->
+                        <div class="comparison-result">
+                            <div class="result-circle result-icon
+                                {% if recognition.comparison_result == 'same' %}result-same
+                                {% elif recognition.comparison_result == 'different' %}result-different
+                                {% elif recognition.comparison_result == 'no_face' %}result-no-face
+                                {% else %}result-error{% endif %}">
+                                {% if recognition.comparison_result == 'same' %}✓
+                                {% elif recognition.comparison_result == 'different' %}✗
+                                {% elif recognition.comparison_result == 'no_face' %}⚠
+                                {% else %}❌{% endif %}
+                            </div>
+                            <h3 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0;">{{ recognition.get_result_display }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details Section -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Result Summary -->
+                    <div class="glass-card fade-in" style="border-radius: 16px; padding: 1.5rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0 0 1rem 0;">Result Summary</h3>
+                        <div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status:</span>
+                                <span class="detail-value">{{ recognition.get_comparison_result_display }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Date:</span>
+                                <span class="detail-value">{{ recognition.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Time:</span>
+                                <span class="detail-value">{{ recognition.created_at|date:"H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Details -->
+                    {% if recognition.result_details %}
+                    <div class="glass-card fade-in" style="border-radius: 16px; padding: 1.5rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0 0 1rem 0;">Technical Details</h3>
+                        <div class="technical-details">{{ recognition.result_details }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="glass-card fade-in" style="border-radius: 16px; padding: 1.5rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0 0 1rem 0;">Actions</h3>
+                        <div>
+                            <a href="{% url 'upload_images' %}" class="action-button btn-primary" style="color: white;">
+                                🔍 New Recognition
+                            </a>
+                            <a href="{% url 'facial_recognition_history' %}" class="action-button btn-secondary" style="color: white;">
+                                📊 View History
+                            </a>
+                            <a href="{% url 'home' %}" class="action-button btn-tertiary" style="color: white;">
+                                🏠 Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced fade-in animation with staggered timing
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+
+    // Add hover effects to result icons
+    const resultIcon = document.querySelector('.result-icon');
+    if (resultIcon) {
+        resultIcon.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        
+        resultIcon.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    }
+
+    // Add smooth scroll behavior for back button
+    const backLink = document.querySelector('.back-link');
+    if (backLink) {
+        backLink.addEventListener('click', function(e) {
+            // Add a subtle animation before navigation
+            this.style.transform = 'translateX(-8px)';
+            setTimeout(() => {
+                // Navigation will happen naturally
+            }, 150);
+        });
+    }
+
+    // Add image hover effects
+    const images = document.querySelectorAll('.image-preview');
+    images.forEach(img => {
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)';
+        });
+        
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+        });
+    });
+
+    // Add button ripple effect
+    const buttons = document.querySelectorAll('.action-button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s linear';
+            ripple.style.left = (e.clientX - e.target.offsetLeft) + 'px';
+            ripple.style.top = (e.clientY - e.target.offsetTop) + 'px';
+            ripple.style.width = ripple.style.height = '20px';
+            
+            const rippleContainer = document.createElement('div');
+            rippleContainer.style.position = 'absolute';
+            rippleContainer.style.top = '0';
+            rippleContainer.style.left = '0';
+            rippleContainer.style.width = '100%';
+            rippleContainer.style.height = '100%';
+            rippleContainer.style.overflow = 'hidden';
+            rippleContainer.style.borderRadius = '8px';
+            rippleContainer.appendChild(ripple);
+            
+            if (this.style.position !== 'absolute' && this.style.position !== 'relative') {
+                this.style.position = 'relative';
+            }
+            
+            this.appendChild(rippleContainer);
+            
+            setTimeout(() => {
+                rippleContainer.remove();
+            }, 600);
+        });
+    });
+});
+
+// Add CSS animation for ripple effect
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+</script>
